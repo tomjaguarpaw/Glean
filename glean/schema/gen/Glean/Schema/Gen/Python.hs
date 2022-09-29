@@ -83,8 +83,11 @@ genSchemaPy _version preddefs typedefs =
     let allPreds = preds ++ predsFromTypes preds types
   ]
   where
+    headPreds = case preds of
+      [] -> error "preds was empty"
+      h:_ -> h
     schemas = HashMap.toList declsPerNamespace
-    predsFromTypes preds types = genNamedTypesClasses (head preds) types
+    predsFromTypes preds types = genNamedTypesClasses headPreds types
     namePolicy = mkNamePolicy preddefs typedefs
     declsPerNamespace =
       addNamespaceDependencies $ sortDeclsByNamespace preddefs typedefs

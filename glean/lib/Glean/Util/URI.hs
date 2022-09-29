@@ -72,14 +72,14 @@ slashURI' :: URI -> String -> URI
 slashURI' uri s = uri{ uriPath = uriPath uri // s }
   where
     (//) [] [] = "/"
-    (//) [] b@(_:_) = if head b == '/'
+    (//) [] b@(headB:_) = if headB == '/'
       then b
       else '/':b
     (//) a@(_:_) [] = if last a == '/'
       then a
       else a <> "/"
-    (//) a@(_:_) b@(_:_) = case (last a == '/', head b == '/') of
-      (True, True) -> a <> tail b
+    (//) a@(_:_) b@(headB:tailB) = case (last a == '/', headB == '/') of
+      (True, True) -> a <> tailB
       (False, True) -> a <> b
       (True, False) -> a <> b
       (False, False) -> a <> ('/':b)

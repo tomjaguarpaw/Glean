@@ -435,14 +435,17 @@ angleTest modify = dbTestCase $ \env repo -> do
 
   -- Test literal fact Ids ($<predicate> <id>,2)
   names <- runQuery_ env repo $ allFacts @Cxx.Name
+  let headNames = case names of
+        [] -> error "names was empty"
+        h:_ -> h
   let factId x = Text.pack (show (fromFid (idOf (getId x))))
 
   r <- runQuery_ env repo $ modify $ angle @Cxx.Name $
-      "$cxx1.Name " <> factId (head names)
+      "$cxx1.Name " <> factId headNames
   assertEqual "angle - single fact id" 1 (length r)
 
   r <- runQuery_ env repo $ modify $ angle @Cxx.Name $
-      "$" <> factId (head names) <> ": cxx1.Name"
+      "$" <> factId headNames <> ": cxx1.Name"
   assertEqual "angle - single fact id" 1 (length r)
 
   r <- runQuery_ env repo $ modify $ angle @Cxx.Name $
@@ -453,7 +456,7 @@ angleTest modify = dbTestCase $ \env repo -> do
 
   -- Literal fact ID with the wrong type
   r <- try $ runQuery_ env repo $ modify $ angle @Cxx.FunctionName $
-      "$cxx1.FunctionName " <> factId (head names)
+      "$cxx1.FunctionName " <> factId headNames
   print r
   assertBool "angle - fact id with wrong type" $
     case r of
@@ -468,7 +471,7 @@ angleTest modify = dbTestCase $ \env repo -> do
     "[" <>
       -- we have to help the typechecker by using a typed fact Id for
       -- the first array element.
-      "$cxx1.Name " <> factId (head names) <> "," <>
+      "$cxx1.Name " <> factId headNames <> "," <>
       Text.intercalate "," [ "$" <> factId x | x <- tail names ] <>
     "] [..]"
   assertEqual "angle - array of fact ids 2" (length names) (length r)

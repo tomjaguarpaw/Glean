@@ -21,6 +21,7 @@ import qualified Data.Map.Strict as Map
 
 import Data.Int ( Int64 )
 import Data.List as List ( sortBy, groupBy )
+import qualified Data.List.NonEmpty as NE
 import Data.Ord ( comparing )
 import Data.Function as List ( on )
 
@@ -65,8 +66,8 @@ toSymbolIndex theRefs theDefs = Map.unionWith (++) defs refs
       where
         keyvals :: [(Int64, [SymbolX])]
         keyvals =
-          map (\xs -> (fst (head xs), map snd xs)) $
-          groupBy ((==) `on` fst) $
+          map (\xs -> (fst (NE.head xs), map snd xs)) $
+          NE.groupBy ((==) `on` fst) $
           sortBy (comparing fst) $
             [ (symbolXToStartLine sym, sym)
             | sym <- syms

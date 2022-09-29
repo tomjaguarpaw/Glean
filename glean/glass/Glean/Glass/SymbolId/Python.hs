@@ -13,6 +13,7 @@ module Glean.Glass.SymbolId.Python () where
 
 import Data.Text (Text, splitOn)
 import Data.List (nub)
+import qualified Data.List.NonEmpty as NE
 import Data.Maybe ( maybeToList )
 
 import qualified Glean
@@ -30,10 +31,14 @@ instance Symbol Py.Name where
     v <- Glean.keyOf k
     return [v]
 
+-- This should be in Data.Text
+splitOnNE :: Text -> Text -> NE.NonEmpty Text
+splitOnNE = NE.fromList . splitOn
+
 instance Symbol Py.Declaration where
   toSymbol d = do
     locations <- maybeToList <$> fetchData (declarationLocation $ toAngle d)
-    let loc = case nub $ map (head . splitOn "/") locations of
+    let loc = case nub $ map (NE.head . splitOnNE "/") locations of
               [location] -> location
               _ -> "."
     sym <- case d of

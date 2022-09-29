@@ -27,6 +27,9 @@ catchTest = dbTestCase $ \env repo -> do
 
   -- Pick some fact ids of type Cxx.Name
   names <- runQuery_ env repo $ allFacts @Cxx.Name
+  let headNames = case names of
+        [] -> error "names was empty"
+        h:_ -> h
   let factId x = Text.pack (show (fromFid (idOf (getId x))))
 
   --
@@ -34,7 +37,7 @@ catchTest = dbTestCase $ \env repo -> do
   -- This should raise an exception if all is working properly
   --
   r <- try $ runQuery_ env repo $ angle @Cxx.Type $
-      "$cxx1.Type " <> factId (head names)
+      "$cxx1.Type " <> factId headNames
 
   -- on mis-compiled hosts this is expected to SIGABRT, instead of
   -- catching the C++ exception

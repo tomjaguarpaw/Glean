@@ -227,6 +227,10 @@ testAll act cfg driver opts = do
         | otherwise = fromDriver
         where fromDriver = driverGroups driver opts
 
+  let headGroups = case groups of
+        [] -> error "groups was empty"
+        h:_ -> h
+
   case cfgReplace cfg of
     Just root -> do
       forM_ tests $ \test -> do
@@ -239,10 +243,10 @@ testAll act cfg driver opts = do
         -- regenerate outputs - use the first group as the base
         forM_ groups $ \group ->
           executeTest cfg { cfgRoot = root } driver opts
-            (head groups) group regenerate test
+            headGroups group regenerate test
     Nothing -> do
       testRunnerAction act $ HUnit.TestList
         [ (if null g then id else HUnit.TestLabel g)
             $ HUnit.TestList
-            $ map (toHUnit cfg driver opts (head groups) g) tests
+            $ map (toHUnit cfg driver opts headGroups g) tests
           | g <- groups ]

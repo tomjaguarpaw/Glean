@@ -33,6 +33,8 @@ buildRevision = $(do
   (exit, rev, _) <- liftIO $
     readProcessWithExitCode "git" ["rev-parse", "HEAD"] ""
   case exit of
-    ExitSuccess -> litE (stringL (head (lines rev)))
+    ExitSuccess -> case lines rev of
+      [] -> fail "No output from git"
+      theRev:_ -> litE (stringL theRev)
     _ -> litE (stringL "<unknown>")
   )

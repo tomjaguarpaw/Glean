@@ -82,8 +82,12 @@ getDeclaration :: Some Glean.Backend
                -> Int64
                -> IO Cxx.FunctionDeclaration
 getDeclaration backend repo declId =
-  fmap head $ Glean.runQuery_ backend repo $ Glean.recursive $ Glean.query $
+  fmap head' $ Glean.runQuery_ backend repo $ Glean.recursive $ Glean.query $
     Query.Cxx.FunctionDeclaration_with_id declId
+
+  where head' = \case
+          [] -> error "Empty list in getDeclaration"
+          x:_ -> x
 
 getFamily :: Some Glean.Backend
           -> Glean.Repo

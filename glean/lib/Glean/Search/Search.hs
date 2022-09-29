@@ -29,6 +29,7 @@ import Data.Default
 import qualified Data.HashSet as HashSet
 import Data.Int
 import qualified Data.Map as Map
+import qualified Data.List.NonEmpty as NE
 import Data.Maybe
 import Data.Text ( Text )
 import qualified Data.Text as Text
@@ -365,6 +366,10 @@ data ParsedHackQuery
   | NamespacedName [Text] Text
   | ContainerName [Text] Text Text
 
+-- This should be in Data.Text
+splitOnNE :: Text -> Text -> NE.NonEmpty Text
+splitOnNE = NE.fromList . splitOn
+
 -- | Search @hack.Declaration@ to match 'SearchQuery'
 --
 -- Expects @ident@ or @namespace\ident@ where the optional @namespace@
@@ -407,13 +412,13 @@ findHackDecls lim backend repo SearchQuery{..} = Glean.runHaxl backend repo $
       let parent_ident = if null withoutLeadingBlackslash
             then ""
             else last withoutLeadingBlackslash
-          doubleColonComponents = Text.splitOn "::" parent_ident
+          doubleColonComponents = splitOnNE "::" parent_ident
       guard (length doubleColonComponents `elem` [1, 2])
       guard (not (any Text.null doubleColonComponents))
       let parent = if length doubleColonComponents == 2
-            then Just (head doubleColonComponents)
+            then Just (NE.head doubleColonComponents)
             else Nothing
-      let ident = last doubleColonComponents
+      let ident = NE.last doubleColonComponents
       pure $ case parent of
         Just container -> ContainerName namespaces container ident
         Nothing -> if not leadingBackslash && null namespaces

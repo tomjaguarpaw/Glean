@@ -65,7 +65,10 @@ userQueryFactTest = dbTestCase $ \env repo -> do
   UserQueryResults{..} <-
     Backend.userQueryFacts env repo def { userQueryFacts_facts = factQuery }
   assertEqual "userQueryFacts" 3 (length userQueryResults_facts)
-  let testPred = deserializeJSON $ head userQueryResults_facts
+  let head_userQueryResults_facts = case userQueryResults_facts of
+        [] -> error "userQueryResults_facts was empty"
+        h:_ -> h
+  let testPred = deserializeJSON $ head_userQueryResults_facts
   assertEqual "userQueryFacts decode" (Right (Just (ignorePredK kitchenSink1)))
     (fmap (Glean.Test.predicate_1_key . ignorePredP) testPred)
 

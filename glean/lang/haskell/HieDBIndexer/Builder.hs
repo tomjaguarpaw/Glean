@@ -322,10 +322,11 @@ mkNodeDefinition fLines (modName, srcPath, _hiePath, occNameStr, sL, sC, eL, eC)
     both for some data types (e.g. tNodePageRecommendationInfo,
     cNodePageRecommendationInfo).
   -}
-  Just $ case head occNameStr of
-    'v' -> Name definition
-    't' -> Type definition -- Data Type. It can be a new data type or alias.
-    'c' -> Constructor definition -- Constructor
+  Just $ case occNameStr of
+    [] -> error "occNameStr was empty"
+    'v':_ -> Name definition
+    't':_ -> Type definition -- Data Type. It can be a new data type or alias.
+    'c':_ -> Constructor definition -- Constructor
     _ -> Type definition
   where
     symNameToName :: [Char] -> Text

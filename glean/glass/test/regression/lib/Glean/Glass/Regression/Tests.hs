@@ -19,6 +19,7 @@ module Glean.Glass.Regression.Tests (
 
 import Data.Default
 import Data.List
+import qualified Data.List.NonEmpty as NE
 import qualified Data.Map as Map
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -131,7 +132,7 @@ testFindReferences sym@(SymbolId name) paths get =
           assertEqual s
             (Map.fromList paths )
             (Map.fromList
-              [ (head paths, length paths) | paths <- group (sort results) ])
+              [ (NE.head paths, length paths) | paths <- NE.group (sort results) ])
       assertLocsEq "findReferences Path matches" $
         map location_filepath locs
       locs <- findReferenceRanges env sym def

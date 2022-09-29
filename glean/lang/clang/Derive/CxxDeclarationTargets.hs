@@ -327,7 +327,9 @@ deriveCxxDeclarationTargets e cfg withWriters = withWriters workers $ \ writers 
   let done :: String -> a -> IO a  -- useful for seeing timing in logs
       done msg x = logInfo msg >> return x
       somePid :: forall p. Predicate p => PidOf p
-      somePid = getPid (head writers)
+      somePid = case writers of
+        [] -> error "writers was empty"
+        h:_ -> getPid h
 
   (xrefs, decls, fileliness, indirects) <- do
     maps <- runConcurrently $ (,,,)

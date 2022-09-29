@@ -43,6 +43,11 @@ import Glean.Types hiding (Exception)
 repos :: [Repo]
 repos = [Repo "foo" (Text.pack $ show n) | n <- [1 .. 12 :: Int]]
 
+repo1 :: Repo
+repo1 = case repos of
+  [] -> error "repos was empty"
+  h:_ -> h
+
 data CreateDelete = Create | Delete
   deriving(Eq,Ord,Enum,Bounded,Read,Show)
 
@@ -110,8 +115,6 @@ createFailureTest = TestCase $ withMemCatalog $ \store cat -> do
   assert $ not <$> readTVarIO called
   assert $ not <$> Catalog.exists cat [Local] repo1
   checkConsistency cat
-  where
-    repo1 = head repos
 
 nextMeta :: Meta -> Meta
 nextMeta !meta = meta
@@ -150,8 +153,6 @@ writeMetaTest = TestCase $ withMemCatalog $ \store cat -> do
     atomically $ do
       m <- readTVar val
       when (m /= k+n) retry
-  where
-    repo1 = head repos
 
 stackedDbsTest :: Test
 stackedDbsTest = TestCase $ withMemCatalog $ \_ cat -> do
@@ -221,8 +222,6 @@ writeWhileCommitting = TestCase $ withMemCatalog $ \store cat -> do
   takeMVar finish2
   Just m <- Store.get store repo1
   assertEqual "" 2 $ metaCounter m
-  where
-    repo1 = head repos
 
 createNew :: HasCallStack => Catalog -> Repo -> IO ()
 createNew cat repo = do

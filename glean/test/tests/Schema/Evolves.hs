@@ -1170,7 +1170,9 @@ schemaEvolvesTransformations =
       [s| x.P.1 _ |]
       $ \byRef (Right results) runQuery -> do
         bin <- binResults results
-        let factId = head $ Map.keys $ userQueryResultsBin_facts bin
+        let factId = case Map.keys $ userQueryResultsBin_facts bin of
+              [] -> error "userQueryResultsBin_facts bin was empty"
+              h:_ -> h
 
         response <- runQuery $ "$" <> pack (show factId) <> " : x.P.1"
         facts <- decodeResultsAs (SourceRef "x.P" (Just 1)) byRef response

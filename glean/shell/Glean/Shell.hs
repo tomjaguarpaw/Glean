@@ -914,10 +914,12 @@ userFact fid = do
           (realToFrac userQueryStats_elapsed_ns / 1000000 :: Double)
           userQueryStats_allocated_bytes
         :: String )
-  case JSON.decode (UTF8.toString (head userQueryResults_facts)) of
-    JSON.Error err -> output $ pretty err
-    JSON.Ok (value :: JSON.JSValue) ->
-      output $ pretty pref <> line <> pretty value
+  case userQueryResults_facts of
+    [] -> error "userQueryResults_facts was empty"
+    h:_ -> case JSON.decode (UTF8.toString h) of
+      JSON.Error err -> output $ pretty err
+      JSON.Ok (value :: JSON.JSValue) ->
+        output $ pretty pref <> line <> pretty value
 
 asBadQuery :: Thrift.QuerySyntax -> String -> Thrift.BadQuery -> BadQuery
 asBadQuery syntax query (Thrift.BadQuery err) =

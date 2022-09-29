@@ -84,7 +84,9 @@ pickHash name = withBackend $ \be -> do
       , let Glean.Repo{..} = database_repo
       , repo_name == name
       ]
-  return $ head $ filter (`notElem` hashes) $ map showt [0::Int ..]
+  case filter (`notElem` hashes) $ map showt [0::Int ..] of
+    [] -> error "pickHash: Impossible situation: filter of infinite list terminated."
+    h:_ -> return h
 
 -- | Load a set of JSON files as a DB
 load :: Glean.Repo -> [FilePath] -> Eval ()

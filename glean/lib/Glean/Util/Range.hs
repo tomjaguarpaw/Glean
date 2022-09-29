@@ -44,6 +44,7 @@ import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as B
 import Data.Function (on)
 import Data.List (groupBy, sortBy)
+import qualified Data.List.NonEmpty as NE
 import Data.List.Extra (chunksOf)
 import Data.Maybe (fromMaybe)
 import qualified Data.String.UTF8 as UTF8 hiding (take)
@@ -500,5 +501,5 @@ compareRange r1 r2 =
 -- | Sort and filter the @[a]@ removing contained items. Order is by file,
 -- ascending begin position, descending end position.
 topLevelRanges :: (a -> Src.Range) -> [a] -> [a]
-topLevelRanges f = map head . groupBy (rangeContains `on` f)
+topLevelRanges f = map NE.head . NE.groupBy (rangeContains `on` f)
   . sortBy (compareRange `on` f)
